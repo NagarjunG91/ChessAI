@@ -143,15 +143,42 @@ function App() {
         {/* User Overview */}
         {dashboard && (
           <div className="flex items-center space-x-4 bg-white rounded shadow p-4">
-            <img src={dashboard.overview.avatar} alt="avatar" className="w-16 h-16 rounded-full shadow" />
+            <img 
+              src={dashboard.overview.avatar} 
+              alt="avatar" 
+              className="w-16 h-16 rounded-full shadow"
+              onError={(e) => {
+                e.target.src = 'https://lichess.org/assets/images/placeholder.256.png';
+              }}
+            />
             <div>
               <h1 className="text-2xl font-bold">{dashboard.overview.username}</h1>
-              <div className="flex space-x-2 mt-1">
-                {dashboard.overview.ratings && Object.entries(dashboard.overview.ratings).map(([cat, val]) => (
-                  <span key={cat} className="bg-gray-100 rounded px-2 py-1 shadow text-sm font-mono">
-                    {cat}: {val.rating}
-                  </span>
-                ))}
+              <div className="flex flex-wrap gap-2 mt-2">
+                {dashboard.overview.ratings && Object.entries(dashboard.overview.ratings).map(([cat, val]) => {
+                  // Show all ratings, but style provisional ones differently
+                  if (val && val.rating) {
+                    const isProvisional = val.prov === true;
+                    const hasGames = val.games > 0;
+                    
+                    return (
+                      <span 
+                        key={cat} 
+                        className={`rounded px-3 py-1 shadow text-sm font-mono ${
+                          isProvisional 
+                            ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
+                            : hasGames 
+                              ? 'bg-blue-100 text-blue-800' 
+                              : 'bg-gray-100 text-gray-600'
+                        }`}
+                        title={isProvisional ? 'Provisional Rating' : `${val.games} games`}
+                      >
+                        {cat}: {val.rating}
+                        {isProvisional && ' (P)'}
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
               </div>
             </div>
           </div>
@@ -285,13 +312,85 @@ function App() {
 
         {/* AI-Generated Insights Section */}
         {dashboard && (
-          <div className="bg-white rounded shadow p-4">
-            <h2 className="text-lg font-semibold mb-2">🤖 AI-Generated Insights</h2>
-            <ul className="list-disc pl-6 space-y-2">
-              {dashboard.insights && dashboard.insights.map((ins, i) => (
-                <li key={i} className="text-gray-700">{ins}</li>
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg shadow-lg p-6 border border-blue-200">
+            <div className="flex items-center mb-6">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-full mr-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">🎯 Elite Chess Coaching Insights</h2>
+                <p className="text-gray-600">Personalized analysis from your AI Grandmaster coach</p>
+              </div>
+            </div>
+            
+            <div className="grid gap-4 md:grid-cols-2">
+              {dashboard.insights && dashboard.insights.map((insight, i) => (
+                <div key={i} className={`rounded-lg p-5 shadow-md border-l-4 ${
+                  insight.type === 'success' ? 'bg-green-50 border-green-400' :
+                  insight.type === 'warning' ? 'bg-yellow-50 border-yellow-400' :
+                  insight.type === 'strategy' ? 'bg-purple-50 border-purple-400' :
+                  insight.type === 'performance' ? 'bg-blue-50 border-blue-400' :
+                  insight.type === 'opening' ? 'bg-orange-50 border-orange-400' :
+                  insight.type === 'development' ? 'bg-indigo-50 border-indigo-400' :
+                  insight.type === 'psychology' ? 'bg-pink-50 border-pink-400' :
+                  'bg-gray-50 border-gray-400'
+                }`}>
+                  
+                  <div className="flex items-start mb-3">
+                    <div className={`p-2 rounded-full mr-3 ${
+                      insight.type === 'success' ? 'bg-green-100' :
+                      insight.type === 'warning' ? 'bg-yellow-100' :
+                      insight.type === 'strategy' ? 'bg-purple-100' :
+                      insight.type === 'performance' ? 'bg-blue-100' :
+                      insight.type === 'opening' ? 'bg-orange-100' :
+                      insight.type === 'development' ? 'bg-indigo-100' :
+                      insight.type === 'psychology' ? 'bg-pink-100' :
+                      'bg-gray-100'
+                    }`}>
+                      {insight.type === 'success' && <span className="text-green-600 text-lg">🚀</span>}
+                      {insight.type === 'warning' && <span className="text-yellow-600 text-lg">⚠️</span>}
+                      {insight.type === 'strategy' && <span className="text-purple-600 text-lg">🎯</span>}
+                      {insight.type === 'performance' && <span className="text-blue-600 text-lg">📊</span>}
+                      {insight.type === 'opening' && <span className="text-orange-600 text-lg">♟️</span>}
+                      {insight.type === 'development' && <span className="text-indigo-600 text-lg">🎭</span>}
+                      {insight.type === 'psychology' && <span className="text-pink-600 text-lg">🧠</span>}
+                      {!['success', 'warning', 'strategy', 'performance', 'opening', 'development', 'psychology'].includes(insight.type) && 
+                        <span className="text-gray-600 text-lg">ℹ️</span>}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-gray-800 mb-2">{insight.title}</h3>
+                      <p className="text-gray-700 mb-3 leading-relaxed">{insight.message}</p>
+                      
+                      <div className="bg-white rounded-lg p-3 border border-gray-200">
+                        <div className="flex items-center mb-2">
+                          <svg className="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span className="text-sm font-semibold text-blue-800">Action Plan</span>
+                        </div>
+                        <p className="text-sm text-gray-700 font-medium">{insight.action}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
+            
+            <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
+              <div className="flex items-center">
+                <div className="bg-gradient-to-r from-green-500 to-blue-500 p-2 rounded-full mr-3">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">💡 Pro Tip</h4>
+                  <p className="text-sm text-gray-600">Review these insights weekly and track your progress. Remember, chess improvement is a marathon, not a sprint!</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
