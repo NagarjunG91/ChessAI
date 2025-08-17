@@ -92,7 +92,7 @@ ollama pull llama2
 Run the agents to test your LLM configuration:
 
 ```bash
-python main.py --user DrNykterstein
+python main.py --user slowbluesman
 ```
 
 You should see:
