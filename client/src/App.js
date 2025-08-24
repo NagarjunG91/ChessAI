@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import ChatWidget from './ChatWidget';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 // import { Card } from 'shadcn-ui'; // Uncomment if shadcn/ui is installed
 // import { motion } from 'framer-motion';
@@ -7,7 +8,7 @@ import './App.css';
 const MCP_API = 'http://localhost:8000';
 
 function App() {
-  const [username, setUsername] = useState('DrNykterstein'); // Default to a real user
+  const [username, setUsername] = useState('slowbluesman'); // Default to a real user
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -143,15 +144,17 @@ function App() {
         {/* User Overview */}
         {dashboard && (
           <div className="flex items-center space-x-4 bg-white rounded shadow p-4">
-            <img 
-              src={dashboard.overview.avatar} 
-              alt="avatar" 
+            {dashboard?.overview?.avatar && (
+              <img
+                src={dashboard.overview.avatar}
+                alt="avatar"
               className="w-16 h-16 rounded-full shadow"
               onError={(e) => {
                 e.target.src = 'https://lichess.org/assets/images/placeholder.256.png';
               }}
             />
-            <div>
+            )}
+              <div>
               <h1 className="text-2xl font-bold">{dashboard.overview.username}</h1>
               <div className="flex flex-wrap gap-2 mt-2">
                 {dashboard.overview.ratings && Object.entries(dashboard.overview.ratings).map(([cat, val]) => {
@@ -161,13 +164,13 @@ function App() {
                     const hasGames = val.games > 0;
                     
                     return (
-                      <span 
-                        key={cat} 
+                      <span
+                        key={cat}
                         className={`rounded px-3 py-1 shadow text-sm font-mono ${
-                          isProvisional 
-                            ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
-                            : hasGames 
-                              ? 'bg-blue-100 text-blue-800' 
+                          isProvisional
+                            ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                            : hasGames
+                              ? 'bg-blue-100 text-blue-800'
                               : 'bg-gray-100 text-gray-600'
                         }`}
                         title={isProvisional ? 'Provisional Rating' : `${val.games} games`}
@@ -179,9 +182,9 @@ function App() {
                   }
                   return null;
                 })}
-              </div>
-            </div>
           </div>
+                        </div>
+                      </div>
         )}
 
         {/* Rating History Charts */}
@@ -199,7 +202,7 @@ function App() {
                     const years = parseInt(e.target.value);
                     setTimeRange(years);
                     // Force re-render by updating state
-                    setDashboard({...dashboard, _refresh: Date.now()});
+                    setDashboard({ ...dashboard, _refresh: Date.now() });
                   }}
                   defaultValue="1"
                 >
@@ -208,9 +211,9 @@ function App() {
                   <option value="5">Past 5 Years</option>
                   <option value="0">All Time</option>
                 </select>
-              </div>
-            </div>
-            
+      </div>
+    </div>
+   
             {/* Debug info - remove this later */}
             <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
               <strong>Debug - Chart Data Keys:</strong> {Object.keys(chartData[0] || {}).join(', ')}
@@ -222,14 +225,14 @@ function App() {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="date" 
+                  <XAxis
+                    dataKey="date"
                     type="category"
                     tickFormatter={(value) => {
                       if (value instanceof Date) {
-                        return value.toLocaleDateString('en-US', { 
-                          month: 'short', 
-                          year: '2-digit' 
+                        return value.toLocaleDateString('en-US', {
+                          month: 'short',
+                          year: '2-digit'
                         });
                       }
                       return value;
@@ -245,9 +248,9 @@ function App() {
                       if (value instanceof Date) {
                         return value.toLocaleDateString('en-US', { 
                           weekday: 'long',
-                          year: 'numeric', 
-                          month: 'long', 
-                          day: 'numeric' 
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
                         });
                       }
                       return value;
@@ -264,9 +267,9 @@ function App() {
                       return (
                         <Line 
                           key={ratingKey}
-                          type="monotone" 
-                          dataKey={ratingKey} 
-                          stroke={colors[index % colors.length]} 
+                          type="monotone"
+                          dataKey={ratingKey}
+                          stroke={colors[index % colors.length]}
                           strokeWidth={2}
                           dot={{ r: 4 }}
                           name={timeControl}
@@ -295,8 +298,8 @@ function App() {
                 {dashboard.recentGames && dashboard.recentGames.map((g, i) => (
                   <tr key={g.id || i} className="border-b">
                     <td className="p-2">
-                      {g.players?.white?.user?.name === dashboard.overview.username 
-                        ? g.players?.black?.user?.name 
+                      {g.players?.white?.user?.name === dashboard.overview.username
+                        ? g.players?.black?.user?.name
                         : g.players?.white?.user?.name}
                     </td>
                     <td className="p-2">
@@ -394,8 +397,11 @@ function App() {
           </div>
         )}
       </div>
+      <ChatWidget />
     </div>
+   
   );
 }
 
 export default App;
+

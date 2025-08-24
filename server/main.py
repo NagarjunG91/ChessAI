@@ -11,14 +11,30 @@ from concurrent.futures import ThreadPoolExecutor
 
 # Add the agents directory to the path so we can import the agent classes
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'agents'))
-from main import DataAgent, AnalyticsAgent, NarrativeAgent, UIAgent
+from agents.main import DataAgent, AnalyticsAgent, NarrativeAgent, UIAgent
 
 app = FastAPI(title="ChessMCP Lichess MCP Server")
-
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Add CORS middleware
+
+class ChatRequest(BaseModel):
+    message: str
+
+@app.post("/chat")
+async def chat_endpoint(req: ChatRequest):
+    narrative_agent = NarrativeAgent()
+    response = await narrative_agent.run(req.message)
+    return {"response": response}
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
