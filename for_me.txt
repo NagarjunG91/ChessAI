@@ -6,7 +6,7 @@ I created a `run.py` script that starts everything for you:
 
 ```bash
 # In your MCPServer directory
-python run.py --user DrNykterstein
+python run.py --user slowbluesman
 ```
 
 This will:
@@ -68,7 +68,7 @@ npm start
 # Terminal 3: CrewAI Agents (optional)
 cd /Users/nagarjungopalakrishna/Documents/ChessMCP/MCPServer
 source venv/bin/activate
-python agents/main.py --user DrNykterstein
+python agents/main.py --user slowbluesman
 ```
 
 ## 🌐 **Access Points:**
