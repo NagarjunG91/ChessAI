@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -14,24 +15,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'agents'))
 from agents.main import DataAgent, AnalyticsAgent, NarrativeAgent, UIAgent
 
 app = FastAPI(title="ChessMCP Lichess MCP Server")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
 
 # Add CORS middleware
-
-class ChatRequest(BaseModel):
-    message: str
-
-@app.post("/chat")
-async def chat_endpoint(req: ChatRequest):
-    narrative_agent = NarrativeAgent()
-    response = await narrative_agent.run(req.message)
-    return {"response": response}
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -79,6 +65,20 @@ class GameMetadata(BaseModel):
     opening: dict = None
     status: str
     # ... add more fields as needed
+
+
+class ChatRequest(BaseModel):
+    username: str
+    message: str
+
+@app.post("/chat")
+async def chat_endpoint(req: ChatRequest):
+    from agents.main import ChatAgent
+    chat_agent = ChatAgent()
+    response = await chat_agent.run(req.username, req.message)
+    return {"response": response}
+
+
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
 async def fetch_lichess(url, headers=None):
@@ -153,13 +153,35 @@ def _run_agent_pipeline(username):
         analytics_agent = AnalyticsAgent()
         narrative_agent = NarrativeAgent()
         ui_agent = UIAgent()
-        
-        # Run the agent pipeline
+
+        # Step 1: DataAgent fetches user data
         data = data_agent.run(username)
+
+        # Step 2: AnalyticsAgent analyzes data
         analytics = analytics_agent.run(data)
-        insights = narrative_agent.run(analytics, data)
+
+        # Step 3: NarrativeAgent generates insights using kickoff()
+        narrative_prompt = (
+            f"As a {narrative_agent.role}, your goal is: {narrative_agent.goal}. "
+            f"Here is the user's analytics data: {json.dumps(analytics)}. "
+            f"Here is the user's raw data: {json.dumps(data)}. "
+            "Generate sophisticated, actionable chess insights and improvement strategies for the user, in a JSON array of objects with fields: type, title, message, action. Do not include puzzle ratings. Include at least 10 insights on rating trends, time control strengths/weaknesses, opening performance, color performance, consistency, and psychological aspects. Make the insights motivating and impressive."
+        )
+        insights_result = narrative_agent.kickoff(narrative_prompt)
+        try:
+            insights = json.loads(insights_result.raw)
+        except Exception:
+            insights = [{"type": "info", "title": "LLM Output", "message": insights_result.raw, "action": ""}]
+
+        # Step 4: UIAgent generates dashboard (optionally with LLM summary)
         dashboard = ui_agent.run(data, analytics, insights)
-        
+        ui_prompt = (
+            f"As a {ui_agent.role}, your goal is: {ui_agent.goal}. "
+            f"Here is the dashboard data: {json.dumps(dashboard)}. "
+            "Write a short summary for the user to display at the top of their dashboard."
+        )
+        dashboard_summary = ui_agent.kickoff(ui_prompt)
+        dashboard["llm_summary"] = dashboard_summary.raw
         return dashboard
     except Exception as e:
         raise Exception(f"Agent pipeline error: {str(e)}") 

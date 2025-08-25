@@ -1,7 +1,12 @@
+
 import argparse
 import subprocess
 import sys
 import os
+from dotenv import load_dotenv
+
+# Load .env file from agents directory
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), 'agents', '.env'))
 
 parser = argparse.ArgumentParser(description='Run MCP server and CrewAI agents.')
 parser.add_argument('--user', type=str, required=True, help='Lichess username')

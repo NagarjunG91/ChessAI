@@ -12,7 +12,7 @@ from langchain_community.llms import Ollama
 def get_openai_llm():
     """OpenAI GPT models (requires OPENAI_API_KEY)"""
     return ChatOpenAI(
-        model="gpt-4",  # or "gpt-3.5-turbo"
+        model="gpt-4o",  # or "gpt-3.5-turbo"
         temperature=0.7,
         max_tokens=2000
     )

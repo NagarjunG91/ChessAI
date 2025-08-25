@@ -6,7 +6,7 @@ I created a `run.py` script that starts everything for you:
 
 ```bash
 # In your MCPServer directory
-python run.py --user slowbluesman
+./venv/bin/python run.py --user slowbluesman
 ```
 
 This will:
@@ -21,7 +21,7 @@ This will:
 # Terminal 1 - Start the FastAPI MCP server
 cd /Users/nagarjungopalakrishna/Documents/ChessMCP/MCPServer
 source venv/bin/activate
-python -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
+./venv/bin/python -m uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### **Step 2: Start the React Dashboard**
@@ -36,7 +36,7 @@ npm start
 # Terminal 3 - Test the agents separately
 cd /Users/nagarjungopalakrishna/Documents/ChessMCP/MCPServer
 source venv/bin/activate
-python agents/main.py --user DrNykterstein
+./venv/bin/python agents/main.py --user slowbluesman
 ```
 
 ## 📱 **What You'll See:**
