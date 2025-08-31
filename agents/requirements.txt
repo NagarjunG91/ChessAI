@@ -1,7 +1,0 @@
-crewai
-openai
-langchain-openai
-langchain-anthropic
-langchain-google-genai
-langchain-community
-numpy 
