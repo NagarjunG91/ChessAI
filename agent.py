@@ -1,7 +1,7 @@
 import os
 from crewai import Agent, Task, Crew
 from openai import OpenAI
-from lichess_tools import get_lichess_perfs, get_lichess_rating_history
+from lichess_tools import get_lichess_perfs, get_lichess_rating_history, get_lichess_performance
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -12,9 +12,9 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Create an agent
 lichess_agent = Agent(
     role="Expert Chess Coach",
-    backstory="Provides insights and advice on chess strategies based on Lichess player data.",
-    goal="Provide expert advice and insights on chess strategies and player performance based on Lichess data for given player id by getting performance stats and rating history.",
-    tools=[get_lichess_perfs, get_lichess_rating_history],
+    backstory="Chess player with 30 years of experience in the game and a master of chess strategies with 10 years of experience in coaching.",
+    goal="Provide detailed expert advice to improve the player's chess strategies and player performance based on Lichess data for given player id by getting performance stats and rating history only for blitz format.",
+    tools=[get_lichess_rating_history, get_lichess_performance],
     verbose=True
 )
 

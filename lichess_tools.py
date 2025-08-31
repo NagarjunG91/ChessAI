@@ -20,6 +20,13 @@ async def get_lichess_rating_history(username: str) -> dict:
     data = await fetch_lichess(url)
     return data
 
+@tool("get_lichess_performance")
+async def get_lichess_performance(username: str, performance_type: str) -> dict:
+    """Read performance statistics of a user, for a single performance typefrom Lichess API."""
+    url = f"{LICHESS_API}/user/{username}/perf/{performance_type}"
+    data = await fetch_lichess(url)
+    return data
+
 async def fetch_lichess(url, headers=None):
     async with httpx.AsyncClient() as client:
         r = await client.get(url, headers=headers)
