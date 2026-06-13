@@ -1,0 +1,6 @@
+crewai
+openai
+httpx
+pydantic
+mcp
+langfuse
